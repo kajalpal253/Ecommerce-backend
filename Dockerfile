@@ -10,4 +10,3 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 5454
 ENTRYPOINT ["java", "-jar", "app.jar"]
-C:\Users\Kajal\Downloads\ecom (1)\ecomC:\Users\Kajal\Downloads\ecom (1)\ecom
