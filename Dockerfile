@@ -1,14 +1,13 @@
-# Use official JDK 21 image
-FROM eclipse-temurin:21-jdk
-
-# Set working directory inside container
+# Step 1: Build stage
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# Copy the jar file from target folder
-COPY target/ecom-0.0.1-SNAPSHOT.jar app.jar
-
-# Expose the port your app runs on
+# Step 2: Run stage
+FROM eclipse-temurin:21-jdk
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 5454
-
-# Run the jar file
 ENTRYPOINT ["java", "-jar", "app.jar"]
+C:\Users\Kajal\Downloads\ecom (1)\ecomC:\Users\Kajal\Downloads\ecom (1)\ecom
