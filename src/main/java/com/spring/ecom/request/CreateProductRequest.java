@@ -1,6 +1,7 @@
 package com.spring.ecom.request;
 
 import java.util.List;
+import java.util.Set;
 
 import com.spring.ecom.model.Size;
 
@@ -21,7 +22,7 @@ public class CreateProductRequest {
     private String thirdLevelCategory;
     private String description;
 
-    private List<Size> size;
+    private Set<Size> size;
 
 
     
@@ -49,8 +50,8 @@ public class CreateProductRequest {
     public void setThirdLevelCategory(String thirdLevelCategory) { this.thirdLevelCategory = thirdLevelCategory; }
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
-    public List<Size> getSize() { return size; }
-    public void setSize(List<Size> size) { this.size = size;
+    public Set<Size> getSize() { return size; }
+    public void setSize(Set<Size> size) { this.size = size;
     
     }
 	public String getImageUrl() {

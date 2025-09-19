@@ -1,0 +1,5 @@
+app = "ecom-backend"
+primary_region = "sin"
+
+[build]
+  dockerfile = "Dockerfile"

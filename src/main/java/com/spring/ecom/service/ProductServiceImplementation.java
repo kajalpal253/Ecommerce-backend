@@ -1,8 +1,10 @@
 package com.spring.ecom.service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.io.IOException;
 
@@ -11,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.spring.ecom.exception.ProductException;
@@ -99,6 +102,9 @@ public class ProductServiceImplementation implements ProductService {
 		    
 		    // 💡 Add this line to set the image URL
 		    product.setImageUrl(req.getImageUrl());
+		    if (req.getSize() != null && !req.getSize().isEmpty()) {
+		        product.setSize(new HashSet<>(req.getSize()));
+		    }
 
 		    return productRepository.save(product);
 	}
@@ -138,28 +144,43 @@ public class ProductServiceImplementation implements ProductService {
 	}
 
 	@Override
-	public Page<Product> getAllProduct(String category, List<String> colors, List<String> sizes, Integer minPrice,
-			Integer maxPrice, Integer minDiscount, String sort, String stock, Integer pageNumber, Integer pageSize) {
-		
-		Pageable pageble = PageRequest.of(pageNumber, pageSize);
-		List<Product>products  = productRepository.filterProducts(category,minPrice, maxPrice, minDiscount, sort);
-		if(!colors.isEmpty()) {
-			products = products.stream().filter(p ->colors.stream().anyMatch(c->c.equalsIgnoreCase(p.getColor()))).collect(Collectors.toList());
-		}
-		if(stock !=null) {
-			if(stock.equals("in_stock")) {
-				products =products.stream().filter(p->p.getQuantity()>0).collect(Collectors.toList());
-				
-			}
-			else if(stock.equals("out_of_stock")) {
-				products =products.stream().filter(p->p.getQuantity()<1).collect(Collectors.toList());
-			}
-		}
-		int startIndex =(int)pageble.getOffset();
-		int endIndex = Math.min(startIndex +pageble.getPageSize(),products.size());
-		List<Product>pageContent = products.subList(startIndex, endIndex);
-		Page<Product>filteredProducts = new PageImpl<>(pageContent,pageble,products.size());
-		return filteredProducts;
+	public Page<Product> getAllProduct(String category, List<String> colors, Set<String> size, Integer minPrice,
+	        Integer maxPrice, Integer minDiscount, String sort, String stock, Integer pageNumber, Integer pageSize) {
+
+	    // ✅ Step 1: Setup sorting
+	    Sort sortOrder = Sort.by("discountedPrice");
+	    if ("price_high".equalsIgnoreCase(sort)) {
+	        sortOrder = sortOrder.descending();
+	    } else {
+	        sortOrder = sortOrder.ascending();
+	    }
+
+	    Pageable pageable = PageRequest.of(pageNumber, pageSize, sortOrder);
+
+	    // ✅ Step 2: Get paginated products from DB
+	    Page<Product> productsPage = productRepository.filterProducts(
+	        category, minPrice, maxPrice, minDiscount, pageable
+	    );
+
+	    // ✅ Step 3: Apply color and stock filters on page content
+	    List<Product> filtered = productsPage.getContent();
+
+	    if (!colors.isEmpty()) {
+	        filtered = filtered.stream()
+	            .filter(p -> colors.stream().anyMatch(c -> c.equalsIgnoreCase(p.getColor())))
+	            .collect(Collectors.toList());
+	    }
+
+	    if (stock != null) {
+	        if (stock.equals("in_stock")) {
+	            filtered = filtered.stream().filter(p -> p.getQuantity() > 0).collect(Collectors.toList());
+	        } else if (stock.equals("out_of_stock")) {
+	            filtered = filtered.stream().filter(p -> p.getQuantity() < 1).collect(Collectors.toList());
+	        }
+	    }
+
+	    // ✅ Step 4: Return filtered page (no manual slicing needed)
+	    return new PageImpl<>(filtered, pageable, productsPage.getTotalElements());
 	}
 
 }//service

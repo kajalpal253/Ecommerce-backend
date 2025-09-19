@@ -5,6 +5,7 @@ package com.spring.ecom.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +16,7 @@ import com.spring.ecom.service.ProductService;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
@@ -33,20 +35,23 @@ public class ProductController {
 
     // 📦 Get all products with filters
     @GetMapping("/products") // ✅ Matches frontend
-    public Page<Product> getAllProducts(
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) List<String> color,
-            @RequestParam(required = false) List<String> sizes,
-            @RequestParam(defaultValue = "0") Integer minPrice,
-            @RequestParam(defaultValue = "10000") Integer maxPrice,
-            @RequestParam(defaultValue = "0") Integer minDiscount,
-            @RequestParam(required = false) String sort,
-            @RequestParam(required = false) String stock,
-            @RequestParam(defaultValue = "0") Integer pageNumber,
-            @RequestParam(defaultValue = "10") Integer pageSize
+    public ResponseEntity<Page<Product> >getAllProducts(
+            @RequestParam String category,
+            @RequestParam List<String> color,
+            @RequestParam Set<String> size,
+            @RequestParam Integer minPrice,
+            @RequestParam Integer maxPrice,
+            @RequestParam Integer minDiscount,
+            @RequestParam String sort,
+            @RequestParam String stock,
+            @RequestParam Integer pageNumber,
+            @RequestParam Integer pageSize
+            
     ) {
-        return productService.getAllProduct(category, color, sizes, minPrice, maxPrice, minDiscount, sort, stock, pageNumber, pageSize);
-    }
+     Page<Product>res= productService.getAllProduct(category, color, size, minPrice, maxPrice, minDiscount, sort, stock, pageNumber, pageSize);
+   System.out.println("complet products");
+   return new ResponseEntity<>(res,HttpStatus.ACCEPTED);
+   }
 
     // 🛠️ Create new product
     @PostMapping("/admin/products") // ✅ Matches frontend
@@ -57,7 +62,7 @@ public class ProductController {
 
     // 🗑️ Delete product
    
-    @DeleteMapping("/products/{id}")
+    @DeleteMapping("/admin/products/{id}/delete")
     public ResponseEntity<String> deleteProduct(@PathVariable Long id) throws ProductException {
         String message = productService.deleteProduct(id);
         return ResponseEntity.ok(message);
