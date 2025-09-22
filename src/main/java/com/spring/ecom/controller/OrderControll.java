@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -92,6 +93,72 @@ public class OrderControll {
 		 orderService.deleteOrder(orderId);
 	
 	}
+	@PutMapping("/{orderId}/placed")
+	public ResponseEntity<Order> placedOrder(@PathVariable("orderId") Long orderId,@RequestHeader("Authorization") String jwt) throws OrderException, UserException{
+		if(jwt.startsWith("Bearer")) {
+			jwt =jwt.substring(7);
+		}
+		User user = userService.findUserProfileByJwt(jwt);
+		 Order order=orderService.placedOrder(orderId);
+		 return new ResponseEntity<>(order, HttpStatus.OK);
+		
+	}
+	@PostMapping("/{orderId}/confirmed")
+	public  ResponseEntity<Order> confirmedOrder(@PathVariable("orderId") Long orderId,@RequestHeader("Authorization") String jwt) throws OrderException, UserException{
+		if(jwt.startsWith("Bearer")) {
+			jwt =jwt.substring(7);
+		}
+		User user = userService.findUserProfileByJwt(jwt);
+		
+		 Order order=orderService.confirmedOrder(orderId);
+		 return new ResponseEntity<>(order, HttpStatus.OK);
+		
+	}
+	@PutMapping("/{orderId}/cancle")
+	public ResponseEntity<Order> cancleOderOrder(@PathVariable("orderId") Long orderId,@RequestHeader("Authorization") String jwt) throws OrderException, UserException{
+		if(jwt.startsWith("Bearer")) {
+			jwt =jwt.substring(7);
+		}
+		User user = userService.findUserProfileByJwt(jwt);
+		 Order order=orderService.cancleOderOrder(orderId);
+		 return new ResponseEntity<>(order, HttpStatus.OK);
+	}
+	@PutMapping("/{orderId}/ship")
+	public ResponseEntity<Order>shippeddOrder(@PathVariable("orderId") Long orderId,@RequestHeader("Authorization") String jwt) throws OrderException, UserException{
+		if(jwt.startsWith("Bearer")) {
+			jwt =jwt.substring(7);
+		}
+		User user = userService.findUserProfileByJwt(jwt);
+		 Order order=orderService.shippeddOrder(orderId);
+		 return new ResponseEntity<>(order, HttpStatus.OK);
+		
+	}
+	@PutMapping("/{orderId}/deliver")
+	public ResponseEntity<Order> delivereOrder(@PathVariable("orderId") Long orderId,@RequestHeader("Authorization") String jwt) throws OrderException, UserException{
+		if(jwt.startsWith("Bearer")) {
+			jwt =jwt.substring(7);
+		}
+		User user = userService.findUserProfileByJwt(jwt);
+		 Order order=orderService.delivereOrder(orderId);
+		 return new ResponseEntity<>(order, HttpStatus.OK);
+		
+	}
+	@PutMapping("/{orderId}/delete")
+	public void AdmindeleteOrder(@PathVariable("orderId") Long orderId,@RequestHeader("Authorization") String jwt) throws OrderException, UserException {
+		if(jwt.startsWith("Bearer")) {
+			jwt =jwt.substring(7);
+		}
+		User user =userService.findUserProfileByJwt(jwt);
+		 orderService.deleteOrder(orderId);
 	
+	}
+	
+	@GetMapping("/")
+	public  ResponseEntity<List<Order>> getAllOrders()  {
+		
+		List<Order> order=orderService.getAllOrders();
+		 return new ResponseEntity<>(order, HttpStatus.OK);
+	
+	}
 	
 }// they control order 
